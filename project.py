@@ -1,5 +1,4 @@
 import os
-import json
 import csv
 from tabulate import tabulate
 
@@ -11,29 +10,21 @@ class PriceMachine():
         self.result = ''
 
     def load_prices(self, file_path):
-        # Получаем список файлов директории
         files = os.listdir(file_path)
-        # Проходим по файлам добавляем нужные в список
         prices = []
         for file in files:
             if 'price' in file.lower():
                 prices.append(file)
-                # print(file)
                 with open(file=file, mode='r', encoding='utf-8') as fl:
                     reader = csv.DictReader(fl, delimiter=',')
                     headers = reader.fieldnames
-                    # print(headers)
                     columns = self._search_product_price_weight(headers=headers)
-                    # print(columns)
                     for row in reader:
-                        # print(row)
                         product_name = row.get(columns[0])
                         price = row.get(columns[1])
                         weight = row.get(columns[2])
                         price_per_kg = float(price) / float(weight)
                         self.data.append([product_name, price, weight, file, round(price_per_kg, 2)])
-                        # for i in self.data:
-                        #     print(i)
 
     def _search_product_price_weight(self, headers):
         normal_name_columns = ["название", "продукт", "товар", "наименование"]
@@ -52,29 +43,13 @@ class PriceMachine():
                 weight_column = header
         return name_column, price_column, weight_column
 
-    def export_to_html(self, fname='output2.html'):
-        with open(fname, 'w') as file:
+    def export_to_html(self, fname='output.html'):
+        with open(fname, mode='w') as file:
             file.write("<html><body>")
             file.write(self.result)
             file.write("</body></html>")
 
-        result = '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Позиции продуктов</title>
-        </head>
-        <body>
-            <table>
-                <tr>
-                    <th>Номер</th>
-                    <th>Название</th>
-                    <th>Цена</th>
-                    <th>Фасовка</th>
-                    <th>Файл</th>
-                    <th>Цена за кг.</th>
-                </tr>
-        '''
+            return self.result
 
     def find_text(self, text):
 
@@ -87,14 +62,13 @@ class PriceMachine():
 
 
 pm = PriceMachine()
-print(pm.load_prices('/Users/aleksandrlytkin/PycharmProjects/practical_test_price_list_analyzer'))
+pm.load_prices('/Users/aleksandrlytkin/PycharmProjects/practical_test_price_list_analyzer')
 
 while True:
     search_text = input('Введите название товара для поиска (или "exit / выход" для завершения): ')
     if search_text.lower() in ['exit', 'выход']:
         print('the end')
         break
-    result = pm.find_text(search_text)
-    print(result)
+    pm.find_text(search_text)
 
 print(pm.export_to_html())
