@@ -44,21 +44,19 @@ class PriceMachine():
         return name_column, price_column, weight_column
 
     def export_to_html(self, fname='output.html'):
-        with open(fname, mode='w') as file:
+        with open(fname, mode='w', encoding='utf-8') as file:
             file.write("<html><body>")
-            file.write(self.result)
+            table = tabulate(self.data, headers=['Наименование', 'Цена', 'Вес', 'Файл', 'Цена за кг.'], tablefmt='html')
+            file.write(table)
             file.write("</body></html>")
-
             return self.result
 
     def find_text(self, text):
-
         filtered_data = [row for row in self.data if text.lower() in row[0].lower()]
         sorted_data = sorted(filtered_data, key=lambda x: x[4])
         headers = ["№", "Наименование", "Цена", "Вес", "Файл", "Цена за кг."]
         table = [[idx + 1, *row] for idx, row in enumerate(sorted_data)]
         self.result = tabulate(table, headers, tablefmt="grid")
-        return self.result
 
 
 pm = PriceMachine()
@@ -70,5 +68,5 @@ while True:
         print('the end')
         break
     pm.find_text(search_text)
+    print(pm.export_to_html())
 
-print(pm.export_to_html())
